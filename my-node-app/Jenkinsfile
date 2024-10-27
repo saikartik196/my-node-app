@@ -1,23 +1,50 @@
 pipeline {
     agent any
+
+    tools {
+        nodejs 'NodeJS' // Make sure NodeJS is configured in Jenkins' Global Tool Configuration
+    }
+
     stages {
         stage('Checkout') {
             steps {
-                // Checkout the code from GitHub
-                git url: 'https://github.com/saikartik196/my-node-app.git'
+                // Checkout code from your GitHub repository
+                git url: 'https://github.com/your-username/my-node-app.git', branch: 'main'
             }
         }
+        
         stage('Install Dependencies') {
             steps {
-                // Install npm dependencies
+                // Install Node.js dependencies
                 sh 'npm install'
             }
         }
+        
         stage('Run Application') {
             steps {
-                // Run the application
-                sh 'node index.js'
+                // Start the Node.js application
+                sh 'npm start'
+            }
+        }
+
+        stage('Test Application') {
+            steps {
+                // Run tests (adjust if you add actual test scripts)
+                sh 'npm test'
             }
         }
     }
+
+    post {
+        success {
+            echo 'Build and tests were successful!'
+        }
+        failure {
+            echo 'Build or tests failed!'
+        }
+        always {
+            echo 'Cleaning up...'
+        }
+    }
 }
+
