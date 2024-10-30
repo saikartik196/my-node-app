@@ -3,7 +3,8 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git 'https://github.com/saikartik196/my-node-app.git'
+                // Checkout from the master branch
+                git branch: 'master', url: 'https://github.com/saikartik196/my-node-app.git'
             }
         }
         stage('Build Docker Image') {
@@ -22,9 +23,9 @@ pipeline {
             steps {
                 script {
                     if (isUnix()) {
-                        sh "docker run -d -p 3000:3000 my-node-app"
+                        sh "docker run -d -p 3000:3000 ${imageName}"
                     } else {
-                        bat "docker run -d -p 3000:3000 my-node-app"
+                        bat "docker run -d -p 3000:3000 ${imageName}"
                     }
                 }
             }
