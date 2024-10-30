@@ -1,45 +1,53 @@
 pipeline {
     agent any
-
-    tools {
-        nodejs 'NodeJS' // Ensure this matches the exact name you configured in Global Tool Configuration
+    environment {
+        IMAGE_NAME = 'devops-21bds021-jenkins'
     }
-
     stages {
-        stage('Checkout') {
+        stage('Clone Repository') {
             steps {
-                git url: 'https://github.com/saikartik196/my-node-app.git', branch: 'main'
+                git 'https://github.com/saikartik196/my-node-app.git'
             }
         }
-        
-        stage('Install Dependencies') {
+        stage('Build Docker Image') {
             steps {
-                sh 'npm install'
+                script {
+                    dockerImage = docker.build("${IMAGE_NAME}")
+                }
             }
         }
-        
-        stage('Run Application') {
+        stage('Run Docker Container') {
             steps {
-                sh 'npm start'
+                script {
+                    bat "docker run -d --name ${IMAGE_NAME} -p 3000:3000 ${IMAGE_NAME}"
+                    sleep(10)
+                }
             }
         }
-
         stage('Test Application') {
             steps {
-                sh 'npm test'
+                script {
+                    bat '''
+                    curl -I http://localhost:3000 | find "200 OK" || (echo "Application not responding" && exit 1)
+                    '''
+                }
             }
         }
     }
-
     post {
+        always {
+            script {
+                bat "docker logs ${IMAGE_NAME}" 
+                bat "docker stop ${IMAGE_NAME} || true"
+                bat "docker rm ${IMAGE_NAME} || true"
+                bat "docker rmi ${IMAGE_NAME} || true"
+            }
+        }
         success {
-            echo 'Build and tests were successful!'
+            echo "Pipeline completed successfully!"
         }
         failure {
-            echo 'Build or tests failed!'
-        }
-        always {
-            echo 'Cleaning up...'
+            echo "Pipeline failed. Check the logs for more details."
         }
     }
 }
