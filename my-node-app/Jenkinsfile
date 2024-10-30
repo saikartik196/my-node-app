@@ -2,34 +2,30 @@ pipeline {
     agent any
 
     tools {
-        nodejs 'NodeJS' // Make sure NodeJS is configured in Jenkins' Global Tool Configuration
+        nodejs 'NodeJS' // Ensure this matches the exact name you configured in Global Tool Configuration
     }
 
     stages {
         stage('Checkout') {
             steps {
-                // Checkout code from your GitHub repository
                 git url: 'https://github.com/saikartik196/my-node-app.git', branch: 'main'
             }
         }
         
         stage('Install Dependencies') {
             steps {
-                // Install Node.js dependencies
                 sh 'npm install'
             }
         }
         
         stage('Run Application') {
             steps {
-                // Start the Node.js application
                 sh 'npm start'
             }
         }
 
         stage('Test Application') {
             steps {
-                // Run tests (adjust if you add actual test scripts)
                 sh 'npm test'
             }
         }
@@ -47,4 +43,3 @@ pipeline {
         }
     }
 }
-
